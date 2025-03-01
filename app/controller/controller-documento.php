@@ -14,6 +14,52 @@ public function listarTodosDocumentos(){
         if(empty($retorno)){
 
         	$retorno=['data'=>null,'mensagem'=>'nenhuma informãção encontrada','codigo'=>'600'];
+            http_response_code(600);
+        	return json_encode($retorno);
+        }else {
+            http_response_code(200);
+
+            $dados=[
+            'data'=> $retorno,
+            'mensagem'=>'operação realizada com sucesso!',
+            'codigo'=>'200'];
+            
+            return json_encode($dados);
+        }
+
+
+    }
+
+public function listarTodosDocumentosPorCategoria(){
+    
+        $retorno = DOCUMENTO::listar_por_categoria();
+
+        if(empty($retorno)){
+
+        	$retorno=['data'=>null,'mensagem'=>'Nenhuma informação encontrada','codigo'=>'600'];
+            http_response_code(600);
+        	return json_encode($retorno);
+        }else {
+            http_response_code(200);
+
+            $dados=[
+            'data'=> $retorno,
+            'mensagem'=>'operação realizada com sucesso!',
+            'codigo'=>'200'];
+            
+            return json_encode($dados);
+        }
+
+
+    }
+
+public function listarDocumentosId($id){
+    
+        $retorno = DOCUMENTO::listar_id($id);
+
+        if(empty($retorno)){
+
+        	$retorno=['data'=>null,'mensagem'=>'nenhuma informãção encontrada','codigo'=>'600'];
         	return json_encode($retorno);
         }
 
@@ -25,10 +71,9 @@ public function listarTodosDocumentos(){
         return json_encode($dados);
     }
 
-
-public function listarDocumentosId($id){
+public function listarDocumentosIdCategoria($id){
     
-        $retorno = DOCUMENTO::listar_id($id);
+        $retorno = DOCUMENTO::listar_id_categoria($id);
 
         if(empty($retorno)){
 
@@ -133,19 +178,23 @@ public function eliminarDocumento($id)
         $iddocumento = DOCUMENTO::save($titulo, $tipo, $descricao, $categoria, $departamento, $tags, $idusuario);
     
         if ($iddocumento != 0) {
+
+
+            
             if (isset($_FILES['files']) && is_array($_FILES['files'])) {
                 $retorno = FILES::save($_FILES, $idusuario, $iddocumento);
-    
+                
+                $documento = DOCUMENTO::listar_id($iddocumento);
                 if ($retorno) {
                     $retorno = [
-                        'data' => null,
+                        'data' => $documento,
                         'mensagem' => 'Documento cadastrado com sucesso!',
                         'codigo' => '200'
                     ];
                     http_response_code(200); // OK
                 } else {
                     $retorno = [
-                        'data' => null,
+                        'data' => $documento,
                         'mensagem' => 'Documento cadastrado, ficheiros não carregados',
                         'codigo' => '500'
                     ];
@@ -153,7 +202,7 @@ public function eliminarDocumento($id)
                 }
             } else {
                 $retorno = [
-                    'data' => null,
+                    'data' => $documento,
                     'mensagem' => 'Nenhum arquivo enviado.',
                     'codigo' => '500'
                 ];
@@ -161,7 +210,7 @@ public function eliminarDocumento($id)
             }
         } else {
             $retorno = [
-                'data' => null,
+                'data' => $documento,
                 'mensagem' => 'Erro ao cadastrar o documento.',
                 'codigo' => '500'
             ];

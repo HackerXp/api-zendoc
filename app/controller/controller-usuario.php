@@ -1,12 +1,11 @@
 <?php
 
 require_once'app/model/usuario.php';
-
+require_once'app/model/usuario-permissao.php';
 
 class UsuarioController
 {
-    public function listarTodos()
-    {
+    public function listarTodos(){
     
         $retorno = USUARIO::listar_todas();
 
@@ -27,8 +26,7 @@ class UsuarioController
 
 
 
-    public function listarPorId($id)
-    {
+    public function listarPorId($id) {
     
         $retorno = USUARIO::listar_id($id);
 
@@ -49,8 +47,7 @@ class UsuarioController
 
 
 
-     public function eliminar($id)
-    {
+     public function eliminar($id){
     
         $retorno = USUARIO::delete($id);
 
@@ -79,7 +76,7 @@ class UsuarioController
 
 
 
-public function cadastrar(){
+     public function cadastrar(){
       
         // Recebe os dados do formulário
         $nome = filter_input(INPUT_POST, 'nome', FILTER_SANITIZE_SPECIAL_CHARS);
@@ -89,10 +86,17 @@ public function cadastrar(){
         $email = filter_input(INPUT_POST, 'email', FILTER_SANITIZE_SPECIAL_CHARS);
 
         $senha = filter_input(INPUT_POST, 'senha', FILTER_SANITIZE_SPECIAL_CHARS);
+        
+        $departamento = filter_input(INPUT_POST, 'iddepartamento', FILTER_SANITIZE_NUMBER_INT);
 
+        $permissoes = filter_input(INPUT_POST, 'permissoes', FILTER_DEFAULT, FILTER_REQUIRE_ARRAY);
+
+        if ($permissoes === null || !is_array($permissoes)) {
+        return json_encode(['mensagem' => 'Permissões inválidas.', 'codigo' => 400]);
+       }
         
         // Valida os campos para garantir que não estão vazios
-        if (empty($nome) || empty($usuario) || empty($email) || empty($senha)) {
+        if (empty($nome) || empty($usuario) || empty($email) || empty($senha)|| empty($departamento)) {
             $retorno = [
                 'data' => null,
                 'mensagem' => 'Todos os campos são obrigatórios.',
@@ -113,11 +117,17 @@ public function cadastrar(){
 
             }else{
 
-           
+               
             // Chama o método save para inserir os dados no banco
-            $retorno = USUARIO::save($nome,$usuario,password_hash($senha, PASSWORD_DEFAULT),$email);
+            $retorno = USUARIO::save($nome,$usuario,password_hash($senha, PASSWORD_DEFAULT),$email,$departamento);
 
-            if ($retorno) {
+            if ($retorno!=0) {
+                foreach($permissoes as $key){
+
+                    USUARIOPERMISSAO::save($retorno,$key);
+                }
+
+               
                 $retorno = [
                     'data' => null,
                     'mensagem' => 'Usuário cadastrado com sucesso.',

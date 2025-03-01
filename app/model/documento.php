@@ -177,6 +177,95 @@ public static function listar_id($id){
 }
 
 
+public static function listar_id_categoria($id){
+
+		$retorno=[];
+
+		$conexao = ligar();
+
+		$string = "SELECT * FROM documento d 
+        INNER JOIN categoria c ON (categoria_idcategoria = idcategoria) 
+        INNER JOIN departamento de ON (departamento_iddepartamento = iddepartamento) 
+        INNER JOIN usuario u ON (usuario_idusuario = idusuario) where c.idcategoria=:id";
+
+		$insert=$conexao->prepare($string);
+		$insert->bindParam(":id",$id,PDO::PARAM_INT);
+		$insert->execute();
+
+		if($insert->rowCount()<=0){
+
+			return $retorno; 
+
+		}else{
+
+
+			while($dados=$insert->fetch(PDO::FETCH_OBJ)){
+			 // Adiciona os dados ao array de retorno
+             $files=FILES::listar_todas($dados->iddocumento);
+ 
+             $retorno[] = [
+                 'id' => $dados->iddocumento,
+                 'titulo' => $dados->titulo,
+                 'tipo' => $dados->tipo,
+                 'descricao' => $dados->descricao,
+                 'categoria' => $dados->categoria,
+                 'idcategoria' => $dados->idcategoria,
+                 'departamento' => $dados->departamento,
+                 'iddepartamento' => $dados->iddepartamento,
+                 'tags' => $dados->tags,
+                 'usuario' => $dados->nome,
+                 'idusuario' => $dados->idusuario,
+                 'data_criacao' => $dados->data_criado,
+                 'files' => empty($files) ? 'nenhum arquivo associado' : $files
+             ];
+			}
+
+			return $retorno;
+		}
+}
+
+public static function listar_por_categoria(){
+
+    $retorno=[];
+
+    $conexao = ligar();
+
+    $string = "SELECT 
+                c.categoria, 
+                c.idcategoria, 
+                COUNT(d.iddocumento) AS total_documentos
+                FROM 
+                documento d
+                INNER JOIN categoria c ON d.categoria_idcategoria = c.idcategoria
+                INNER JOIN departamento de ON d.departamento_iddepartamento = de.iddepartamento
+                INNER JOIN usuario u ON d.usuario_idusuario = u.idusuario
+                GROUP BY 
+                c.categoria
+                ";
+
+    $insert=$conexao->prepare($string);
+    $insert->execute();
+
+    if($insert->rowCount()<=0){
+
+        return $retorno; 
+
+    }else{
+
+        while($dados=$insert->fetch(PDO::FETCH_OBJ)){
+    
+        $retorno[] = [
+            'id' => $dados->idcategoria,
+            'categoria' => $dados->categoria,
+            'total' => $dados->total_documentos,
+            'icon' => 'icon-doc'
+        ];
+        }
+
+        return $retorno;
+    }
+}
+
 public static function buscaAvancada($searchTerm) {
     $retorno = [];
     $conexao = ligar();

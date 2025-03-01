@@ -9,7 +9,7 @@ class DEPARTAMENTO {
 
 		$conexao = ligar();
 
-		$string="INSERT INTO departamento(nome, descricao) VALUES(:n,:d)";
+		$string="INSERT INTO departamento(departamento, descricao) VALUES(:n,:d)";
 
 		$insert=$conexao->prepare($string);
         $insert->bindParam(":d",$descricao);
@@ -56,13 +56,11 @@ class DEPARTAMENTO {
 
 			while($dados=$insert->fetch(PDO::FETCH_OBJ)){
 			 // Adiciona os dados ao array de retorno
-            $retorno[] = [
-
-                'id' => $dados->iddepartamento,
-                'descricao' => $dados->descricao,
-                'nome' => $dados->nome
-                
-            ];
+	            $retorno[] = [
+	                'id' => $dados->iddepartamento,
+	                'descricao' => $dados->descricao,
+	                'nome' => $dados->departamento
+	            ];
 			}
 
 			return $retorno;
@@ -109,7 +107,7 @@ public static function listar_nome($nome){
 
 		$conexao = ligar();
 
-		$string = "SELECT * FROM departamento where  nome= :id";
+		$string = "SELECT * FROM departamento where  departamento= :id";
 
 		$insert=$conexao->prepare($string);
 		$insert->bindParam(":id",$nome);
@@ -140,7 +138,7 @@ public static function editar($descricao,$nome,$id){
 
     $conexao = ligar();
 
-    $string="UPDATE departamento set nome=:n,descricao=:d WHERE iddepartamento=:id";
+    $string="UPDATE departamento set departamento=:n,descricao=:d WHERE iddepartamento=:id";
 
     $insert=$conexao->prepare($string);
 

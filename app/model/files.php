@@ -104,23 +104,17 @@ class FILES {
             $sizeInMB = round($sizeInMB, 2); // Arredonda para 2 casas decimais
 
         $retorno[] = [
-
-            
-
             'idfiles' => $dados->idfiles,
             'iddocumento' => $dados->documentoId,
             'extension' => $dados->extension,
             'size' =>  $sizeInMB.'Mb',
             'nome' => $dados->nome,
-            'url' => 'http://localhost/api/app/files/'.$dados->nome
-            
+            'url' => 'http://'.$_SERVER['HTTP_HOST'].'/api-zendoc/app/files/'.$dados->nome
         ];
         }
 
 			return $retorno;
 		}
 }
-
-
 
 }

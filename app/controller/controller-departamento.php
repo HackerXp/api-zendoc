@@ -11,7 +11,7 @@ public function listarTodosDepartamento()
         $retorno = DEPARTAMENTO::listar_todas();
 
         if(empty($retorno)){
-
+            http_response_code(600);
         	$retorno=['data'=>null,'mensagem'=>'nenhuma informãção encontrada','codigo'=>'600'];
         	return json_encode($retorno);
         }
@@ -20,6 +20,7 @@ public function listarTodosDepartamento()
         'data'=>$retorno,
         'mensagem'=>'operação realizada com sucesso!',
         'codigo'=>'200'];
+        http_response_code(200);
 
         return json_encode($dados);
     }
@@ -33,11 +34,13 @@ public function listarDepartamentoId($id)
         $retorno = DEPARTAMENTO::listar_id($id);
 
         if(empty($retorno)){
+            http_response_code(600);
 
         	$retorno=['data'=>null,'mensagem'=>'nenhuma informãção encontrada','codigo'=>'600'];
         	return json_encode($retorno);
         }
 
+        http_response_code(200);
         $dados=[
         'data'=>$retorno,
         'mensagem'=>'operação realizada com sucesso!',
@@ -83,7 +86,7 @@ public function cadastrarDepartamento(){
       
         // Recebe os dados do formulário
         $descricao = filter_input(INPUT_POST, 'descricao', FILTER_SANITIZE_SPECIAL_CHARS);
-        $nome = filter_input(INPUT_POST, 'nome', FILTER_SANITIZE_SPECIAL_CHARS);
+        $nome = filter_input(INPUT_POST, 'departamento', FILTER_SANITIZE_SPECIAL_CHARS);
 
         
         // Valida os campos para garantir que não estão vazios
@@ -147,7 +150,7 @@ public function editarDepartamento(){
   
         // Recebe os dados do formulário
         $descricao = filter_var($putData['descricao'] ?? null, FILTER_SANITIZE_SPECIAL_CHARS);
-        $nome = filter_var($putData['nome'] ?? null, FILTER_SANITIZE_SPECIAL_CHARS);
+        $nome = filter_var($putData['departamento'] ?? null, FILTER_SANITIZE_SPECIAL_CHARS);
 
         $id = filter_var($putData['id'] ?? null, FILTER_SANITIZE_NUMBER_INT);
        

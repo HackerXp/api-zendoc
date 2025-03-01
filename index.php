@@ -1,10 +1,10 @@
 <?php
 
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type');
-header('Content-Type: application/json');
-header('Access-Control-Allow-Headers:Authorization,Content-Type, x-xsrf-token,x_csrftoken,Cache-Control,x-Requested-with');
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+// Unifica todos os headers permitidos em uma única linha:
+header("Access-Control-Allow-Headers: Content-Type, Authorization, x-xsrf-token, x_csrftoken, Cache-Control, x-Requested-With");
+
 //medidas de segurança
 header("Content-Security-Policy: default-src 'self'; script-src 'self';");
 header("X-XSS-Protection: 1; mode=block");
@@ -12,6 +12,11 @@ header("X-Frame-Options: SAMEORIGIN"); // Prevenir clickjacking
 header("X-Content-Type-Options: nosniff"); // Prevenir execução de arquivos incorretos
 header("Referrer-Policy: no-referrer"); // Controle de informações enviadas no cabeçalho Referer
 
+// Tratar preflight (método OPTIONS)
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
 
 
 require_once"app/controller/controller-usuario.php";
@@ -65,7 +70,7 @@ $rotasUsuario = [
 
     
     'listar-permissao-por-usuario' => ['method' => 'GET', 'handler' => 'listarPorUsuario'],
-    'adicionar-permissao-usuario' => ['method' => 'POST', 'handler' => 'adicionarPermissao'],
+    'adicionar-permissao' => ['method' => 'POST', 'handler' => 'adicionarPermissao'],
     'remover-permissao-usuario' => ['method' => 'DELETE', 'handler' => 'eliminarPermissaoUsuario'],
 
 
@@ -76,17 +81,21 @@ $rotasUsuario = [
     //documentos
     'listar-todos-documentos' => ['method' => 'GET', 'handler' => 'listarTodosDocumentos'],
     'listar-documentos-por-id' => ['method' => 'GET', 'handler' => 'listarDocumentosId'],
-    'filtro-avancado' => ['method' => 'POST', 'handler' => 'buscaAvancada'],
+    'filtro-avancado' => ['method' => 'GET', 'handler' => 'buscaAvancada'],
     'editar-documento' => ['method' => 'PUT', 'handler' => 'editarDocumento'],
     'eliminar-documento' => ['method' => 'DELETE', 'handler' => 'eliminarDocumento'],
     'salvar-documento' => ['method' => 'POST', 'handler' => 'salvarDocumento'],
+    'listar-todos-documentos-por-categoria' => ['method' => 'GET', 'handler' => 'listarTodosDocumentosPorCategoria'],
+    'listar-documentos-id-categoria' => ['method' => 'GET', 'handler' => 'listarDocumentosIdCategoria'],
 
-    //tag
+
+    //categoria
 
     'listar-todas-categoria' => ['method' => 'GET', 'handler' => 'listarTodasCategoria'],
     'listar-categoria-por-id' => ['method' => 'GET', 'handler' => 'listarCategoriaId'],
     'criar-categoria' => ['method' => 'POST', 'handler' => 'cadastrarCategoria'],
     'eliminar-categoria' => ['method' => 'DELETE', 'handler' => 'eliminarCategoria'],
+    'editar-categoria' => ['method' => 'PUT', 'handler' => 'editarCategoria'],
 
 ];
 
@@ -166,6 +175,7 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                     'mensagem' => 'ID não fornecido ou inválido. listar usuario',
                     'codigo' => '400',
                 ]);
+                http_response_code(400);
                 exit;
             }
               echo $usuariocontroller->$handler($id);
@@ -213,6 +223,7 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                     'mensagem' => 'ID não fornecido ou inválido.',
                     'codigo' => '400',
                 ]);
+                http_response_code(400);
                 exit;
             }
                 echo $permissaocontroller->$handler($id);
@@ -228,6 +239,7 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                     'mensagem' => 'ID não fornecido ou inválido.',
                     'codigo' => '400',
                 ]);
+                http_response_code(400);
                 exit;
             }
                 echo $permissaocontroller->$handler($id);
@@ -262,6 +274,7 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                     'mensagem' => 'ID não fornecido ou inválido.',
                     'codigo' => '400',
                 ]);
+                http_response_code(400);
                 exit;
             }
                 echo $departamentocontroller->$handler($id);
@@ -277,6 +290,7 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                     'mensagem' => 'ID não fornecido ou inválido.',
                     'codigo' => '400',
                 ]);
+                http_response_code(400);
                 exit;
             }
                 echo $departamentocontroller->$handler($id);
@@ -307,6 +321,7 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                         'mensagem' => 'ID não fornecido ou inválido.',
                         'codigo' => '400',
                     ]);
+                    http_response_code(400);
                     exit;
                 }
                 echo $usuarioPermissaocontroller->$handler($id);
@@ -323,6 +338,7 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                     'mensagem' => 'ID não fornecido ou inválido.',
                     'codigo' => '400',
                 ]);
+                http_response_code(400);
                 exit;
             }
                 echo $usuarioPermissaocontroller->$handler($id);
@@ -348,6 +364,7 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                         'mensagem' => 'ID não fornecido ou inválido.',
                         'codigo' => '400',
                     ]);
+                    http_response_code(400);
                     exit;
                 }
                 echo $usuarioPermissaocontroller->$handler($id);
@@ -364,6 +381,7 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                     'mensagem' => 'ID não fornecido ou inválido.',
                     'codigo' => '400',
                 ]);
+                http_response_code(400);
                 exit;
             }
                 echo $usuarioPermissaocontroller->$handler($id);
@@ -380,6 +398,7 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
 
             
             case 'listarTodosDocumentos':
+                header("Content-Type: application/pdf");
             echo $documentocontroller->$handler();
             break;
 
@@ -393,6 +412,24 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                         'mensagem' => 'ID não fornecido ou inválido.',
                         'codigo' => '400',
                     ]);
+                    http_response_code(400);
+                    exit;
+                }
+                
+                echo $documentocontroller->$handler($id);
+                break;
+                
+            case 'listarDocumentosIdCategoria':
+
+                $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+                if (!$id) {
+    
+                    echo json_encode([
+                        'data' => null,
+                        'mensagem' => 'ID não fornecido ou inválido.',
+                        'codigo' => '400',
+                    ]);
+                    http_response_code(400);
                     exit;
                 }
                 
@@ -410,6 +447,7 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                         'mensagem' => 'ID não fornecido ou inválido.',
                         'codigo' => '400',
                     ]);
+                    http_response_code(400);
                     exit;
                 }
                 
@@ -429,7 +467,10 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
             case 'salvarDocumento':
             echo $documentocontroller->$handler();
             break;
-           
+
+            case 'listarTodosDocumentosPorCategoria':
+                echo $documentocontroller->$handler();
+                break;
           
 
 
@@ -450,6 +491,7 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                             'mensagem' => 'ID não fornecido ou inválido.',
                             'codigo' => '400',
                         ]);
+                        http_response_code(400);
                         exit;
                     }
                     
@@ -467,6 +509,7 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                         'mensagem' => 'ID não fornecido ou inválido.',
                         'codigo' => '400',
                     ]);
+                    http_response_code(400);
                     exit;
                 }
                 
@@ -476,10 +519,10 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
     
                
     
-                /*case 'editarDocumento':
+                case 'editarCategoria':
                 parse_str(file_get_contents("php://input"), $putData);
                 echo $categoriacontroller->$handler($putData);
-                break;*/
+                break;
               
                 case 'cadastrarCategoria':
                 echo $categoriacontroller->$handler();
@@ -495,6 +538,7 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                 'mensagem' => "Endereço não encontrado ".$handler,
                 'codigo' => '404',
             ]);
+            http_response_code(404);
         }
 
 

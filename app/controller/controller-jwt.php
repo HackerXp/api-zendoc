@@ -40,22 +40,22 @@ function login($usuario, $senha) {
     $user = $busca->fetch(PDO::FETCH_ASSOC);
     
     if (!$user) {
+        http_response_code(404);
         // Retorna uma mensagem específica se o usuário não for encontrado
         $retorno = [
             'data' => null,
             'mensagem' => 'Usuário não encontrado',
             'codigo' => '404'
         ];
-        http_response_code(200); // Sucesso
     } else {
         if ($user['bloqueado']) {
+            http_response_code(403);
             // Retorna uma mensagem se o usuário estiver bloqueado
             $retorno = [
                 'data' => null,
                 'mensagem' => 'Usuário bloqueado devido a múltiplas tentativas de login falhas',
                 'codigo' => '403'
             ];
-            http_response_code(200);
         } else {
             $criptada = $user['senha'];
             
@@ -78,14 +78,13 @@ function login($usuario, $senha) {
                 $reset = $conexao->prepare("UPDATE usuario SET tentativas_falhas = 0 WHERE idusuario = ?");
                 $reset->bindParam(1, $user['idusuario']);
                 $reset->execute();
+                http_response_code(200);
                 
                 $retorno = [
                     'data' => $jwt,
                     'mensagem' => 'Login realizado com sucesso',
                     'codigo' => '200'
                 ];
-
-                http_response_code(200); // Sucesso
             } else {
                 // Incrementa tentativas falhas
                 $increment = $conexao->prepare("UPDATE usuario SET tentativas_falhas = tentativas_falhas + 1 WHERE idusuario = ?");
@@ -97,6 +96,7 @@ function login($usuario, $senha) {
                     $bloqueio = $conexao->prepare("UPDATE usuario SET bloqueado = TRUE WHERE idusuario = ?");
                     $bloqueio->bindParam(1, $user['idusuario']);
                     $bloqueio->execute();
+                    http_response_code(200);
                     
                     $retorno = [
                         'data' => null,
@@ -104,13 +104,13 @@ function login($usuario, $senha) {
                         'codigo' => '403'
                     ];
                 } else {
+                    http_response_code(200);
                     $retorno = [
                         'data' => null,
                         'mensagem' => 'Senha incorreta',
                         'codigo' => '401'
                     ];
                 }
-                http_response_code(200);
             }
         }
     }
@@ -127,6 +127,7 @@ function validateToken($token) {
     try {
         // Decodifica o token JWT
         $decoded = JWT::decode($token, new Key($key, 'HS256'));
+        http_response_code(200);
 
         // Retorna os dados decodificados se o token for válido
         return [
@@ -135,6 +136,7 @@ function validateToken($token) {
             'codigo' => '200'
         ];
     } catch (Exception $e) {
+        http_response_code(401);
         // Retorna uma mensagem de erro se o token for inválido
         return [
             'data' => null,

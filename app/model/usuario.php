@@ -5,11 +5,11 @@ require_once'app/conexao/conexao.php';
 class USUARIO {
 
 
-public static function save($nome,$usuario,$senha,$email){
+public static function save($nome,$usuario,$senha,$email,$departamento){
 
 		$conexao = ligar();
 
-		$string="INSERT INTO USUARIO(nome,usuario,senha,email) VALUES(:n,:u,:s,:e)";
+		$string="INSERT INTO USUARIO(nome,usuario,senha,email,iddepartamento) VALUES(:n,:u,:s,:e,:d)";
 
 		$insert=$conexao->prepare($string);
 
@@ -17,9 +17,11 @@ public static function save($nome,$usuario,$senha,$email){
 		$insert->bindParam(":u",$usuario);
 		$insert->bindParam(":s",$senha);
 		$insert->bindParam(":e",$email);
+		$insert->bindParam(":d",$departamento);
+		
 		
 
-		return $insert->execute() ? true : false;
+		return $insert->execute() ? $conexao->lastInsertId() : 0;
 	}
 
 

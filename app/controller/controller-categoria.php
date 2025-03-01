@@ -11,11 +11,12 @@ public function listarTodasCategoria()
         $retorno = CATEGORIA::listar_todas();
 
         if(empty($retorno)){
-
+            http_response_code(600);
         	$retorno=['data'=>null,'mensagem'=>'nenhuma informãção encontrada','codigo'=>'600'];
         	return json_encode($retorno);
         }
 
+        http_response_code(200);
         $dados=[
         'data'=>$retorno,
         'mensagem'=>'operação realizada com sucesso!',
@@ -33,11 +34,12 @@ public function listarCategoriaId($id)
         $retorno = CATEGORIA::listar_id($id);
 
         if(empty($retorno)){
-
+            http_response_code(600);
         	$retorno=['data'=>null,'mensagem'=>'nenhuma informãção encontrada','codigo'=>'600'];
         	return json_encode($retorno);
         }
 
+        http_response_code(200);
         $dados=[
         'data'=>$retorno,
         'mensagem'=>'operação realizada com sucesso!',
