@@ -102,10 +102,10 @@ $rotasUsuario = [
 
 if(isset($_GET['rota']) && $_GET['rota']!=null){
 
-    $rota = filter_input(INPUT_GET, 'rota', FILTER_SANITIZE_SPECIAL_CHARS);
+  $rota = filter_input(INPUT_GET, 'rota', FILTER_SANITIZE_SPECIAL_CHARS);
 
     // Verifica o token antes de acessar as demais rotas
-    if($rota !="autenticacao"){
+   /* if($rota !="autenticacao"){
 
      $headers = getallheaders();
 
@@ -130,7 +130,7 @@ if(isset($_GET['rota']) && $_GET['rota']!=null){
 
         echo json_encode($validacao);
         exit;
-    }}
+    }}*/
 
 
 
@@ -164,6 +164,8 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
 
                 echo login($usuario, $senha);
                 break;
+
+
             // usuários
 
            case'listarUsuarioId':
@@ -183,8 +185,10 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
 
             
             case'listarTodos':
-                   
-                echo $usuariocontroller->$handler();
+                $pagina=isset($_GET['pagina']) ? filter_input(INPUT_GET,'pagina',FILTER_SANITIZE_NUMBER_INT):1;
+                $limite= isset($_GET['limite'])? filter_input(INPUT_GET,'limite',FILTER_SANITIZE_NUMBER_INT):20;
+                
+                echo $usuariocontroller->$handler($pagina,$limite);
             break;
 
 
@@ -210,7 +214,9 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
             //PERMISSÕES
 
             case 'listarTodasPermisao':
-                echo $permissaocontroller->$handler();
+                $pagina=isset($_GET['pagina']) ? filter_input(INPUT_GET,'pagina',FILTER_SANITIZE_NUMBER_INT):1;
+                $limite= isset($_GET['limite'])? filter_input(INPUT_GET,'limite',FILTER_SANITIZE_NUMBER_INT):20;
+                echo $permissaocontroller->$handler($pagina,$limite);
                 break;
 
             case 'listarPermissaoId':
@@ -261,7 +267,9 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
         //departamento
 
             case 'listarTodosDepartamento':
-                echo $departamentocontroller->$handler();
+                $pagina=isset($_GET['pagina']) ? filter_input(INPUT_GET,'pagina',FILTER_SANITIZE_NUMBER_INT):1;
+                $limite= isset($_GET['limite'])? filter_input(INPUT_GET,'limite',FILTER_SANITIZE_NUMBER_INT):20;
+                echo $departamentocontroller->$handler($pagina,$limite);
                 break;
 
             case 'listarDepartamentoId':
@@ -398,8 +406,9 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
 
             
             case 'listarTodosDocumentos':
-                header("Content-Type: application/pdf");
-            echo $documentocontroller->$handler();
+                $pagina=isset($_GET['pagina']) ? filter_input(INPUT_GET,'pagina',FILTER_SANITIZE_NUMBER_INT):1;
+                $limite= isset($_GET['limite'])? filter_input(INPUT_GET,'limite',FILTER_SANITIZE_NUMBER_INT):20;
+            echo $documentocontroller->$handler($pagina,$limite);
             break;
 
             case 'listarDocumentosId':
@@ -478,7 +487,9 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
 
              
             case 'listarTodasCategoria':
-                echo $categoriacontroller->$handler();
+                $pagina=isset($_GET['pagina']) ? filter_input(INPUT_GET,'pagina',FILTER_SANITIZE_NUMBER_INT):1;
+                $limite= isset($_GET['limite'])? filter_input(INPUT_GET,'limite',FILTER_SANITIZE_NUMBER_INT):20;
+                echo $categoriacontroller->$handler($pagina,$limite);
                 break;
     
                 case 'listarCategoriaId':

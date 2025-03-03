@@ -5,10 +5,10 @@ require_once'app/model/departamento.php';
 
 class DepartamentoController
 {
-public function listarTodosDepartamento()
+public function listarTodosDepartamento($pagina,$limite)
     {
     
-        $retorno = DEPARTAMENTO::listar_todas();
+        $retorno = DEPARTAMENTO::listar_todas($pagina,$limite);
 
         if(empty($retorno)){
             http_response_code(600);
@@ -16,13 +16,10 @@ public function listarTodosDepartamento()
         	return json_encode($retorno);
         }
 
-        $dados=[
-        'data'=>$retorno,
-        'mensagem'=>'operação realizada com sucesso!',
-        'codigo'=>'200'];
+        
         http_response_code(200);
 
-        return json_encode($dados);
+        return json_encode($retorno);
     }
 
 

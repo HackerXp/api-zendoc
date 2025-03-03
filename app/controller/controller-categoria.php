@@ -5,10 +5,10 @@ require_once'app/model/categoria.php';
 
 class CategoriaController
 {
-public function listarTodasCategoria()
+public function listarTodasCategoria($pagina,$limite)
     {
     
-        $retorno = CATEGORIA::listar_todas();
+        $retorno = CATEGORIA::listar_todas($pagina,$limite);
 
         if(empty($retorno)){
             http_response_code(600);
@@ -17,12 +17,9 @@ public function listarTodasCategoria()
         }
 
         http_response_code(200);
-        $dados=[
-        'data'=>$retorno,
-        'mensagem'=>'operação realizada com sucesso!',
-        'codigo'=>'200'];
+       
 
-        return json_encode($dados);
+        return json_encode($retorno);
     }
 
 

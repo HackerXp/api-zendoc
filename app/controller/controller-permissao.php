@@ -5,10 +5,10 @@ require_once'app/model/permissao.php';
 
 class PermissaoController
 {
-public function listarTodasPermisao()
+public function listarTodasPermisao($pagina,$limite)
     {
     
-        $retorno = PERMISSAO::listar_todas();
+        $retorno = PERMISSAO::listar_todas($pagina,$limite);
 
         if(empty($retorno)){
 
@@ -16,12 +16,9 @@ public function listarTodasPermisao()
         	return json_encode($retorno);
         }
 
-        $dados=[
-        'data'=>$retorno,
-        'mensagem'=>'operação realizada com sucesso!',
-        'codigo'=>'200'];
+       
 
-        return json_encode($dados);
+        return json_encode($retorno);
     }
 
 

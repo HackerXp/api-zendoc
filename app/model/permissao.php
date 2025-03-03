@@ -50,16 +50,28 @@ class PERMISSAO {
 
 
 //função para listar as especialidades de um medico
-	public static function listar_todas(){
+	public static function listar_todas($pagina,$limite){
 
 		$retorno=[];
-
+		$offset = ($pagina - 1) * $limite; 
 		$conexao = ligar();
 
-		$string = "SELECT * FROM permissao";
+		$string = "SELECT * FROM permissao LIMIT :limite OFFSET :offset";
 
 		$insert=$conexao->prepare($string);
+		$insert->bindValue(":offset",$offset,PDO::PARAM_INT);
+        $insert->bindValue(':limite', $limite, PDO::PARAM_INT);
 		$insert->execute();
+
+		 // Conta o total de registros para cálculo de páginas
+		 $totalSql = "SELECT COUNT(*) as total from permissao";
+	 
+		 $totalStmt = $conexao->prepare($totalSql);
+		 $totalStmt->execute();
+		 $totalRegistros = $totalStmt->fetch(PDO::FETCH_OBJ)->total;
+ 
+	 // Calcula o total de páginas
+		$totalPaginas = ceil($totalRegistros / $limite);
 
 		if($insert->rowCount()<=0){
 
@@ -79,7 +91,13 @@ class PERMISSAO {
             ];
 			}
 
-			return $retorno;
+			return [
+				'data' => $retorno,
+				'pagina_atual' => $pagina,
+				'total_paginas' => $totalPaginas,
+				'total_registros' => $totalRegistros,
+				'mensagem'=>'operação realizada com sucesso!'
+			];
 		}
 }
 

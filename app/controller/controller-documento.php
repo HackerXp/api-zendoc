@@ -7,9 +7,9 @@ class DocumentoController
 {
 
 
-public function listarTodosDocumentos(){
+public function listarTodosDocumentos($pagina,$limite){
     
-        $retorno = DOCUMENTO::listar_todos();
+        $retorno = DOCUMENTO::listar_todos($pagina,$limite);
 
         if(empty($retorno)){
 
@@ -19,12 +19,8 @@ public function listarTodosDocumentos(){
         }else {
             http_response_code(200);
 
-            $dados=[
-            'data'=> $retorno,
-            'mensagem'=>'operação realizada com sucesso!',
-            'codigo'=>'200'];
-            
-            return json_encode($dados);
+                       
+            return json_encode($retorno);
         }
 
 

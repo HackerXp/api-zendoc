@@ -5,9 +5,9 @@ require_once'app/model/usuario-permissao.php';
 
 class UsuarioController
 {
-    public function listarTodos(){
+    public function listarTodos($pagina,$limite){
     
-        $retorno = USUARIO::listar_todas();
+        $retorno = USUARIO::listar_todas($pagina,$limite);
 
         if(empty($retorno)){
 
@@ -15,12 +15,9 @@ class UsuarioController
         	return json_encode($dados);
         }
 
-        $dados=[
-        'data'=>$retorno,
-        'mensagem'=>'operação realizada com sucesso!',
-        'codigo'=>'200'];
+        
 
-        return json_encode($dados);
+        return json_encode($retorno);
     }
 
 
@@ -44,35 +41,6 @@ class UsuarioController
         return json_encode($dados);
     }
 
-
-
-
-     public function eliminar($id){
-    
-        $retorno = USUARIO::delete($id);
-
-        if($retorno==0){
-
-        	$retorno=['data'=>null,'mensagem'=>'id inválido','codigo'=>'600'];
-
- 			http_response_code(400);
-
-        	return json_encode($retorno);
-
-        }else if($retorno){
-
-        	http_response_code(200);
-
-        	$retorno=['data'=>null,'mensagem'=>'operação realizada com sucesso','codigo'=>'200'];
-        }else{
-        	http_response_code(600);
-
-        	$retorno=['data'=>null,'mensagem'=>'operação não realizada','codigo'=>'600'];
-        }
-
-
-        return json_encode($retorno);
-    }
 
 
 

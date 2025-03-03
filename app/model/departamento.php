@@ -36,16 +36,27 @@ class DEPARTAMENTO {
 
 
 //função para listar as especialidades de um medico
-	public static function listar_todas(){
+	public static function listar_todas($pagina,$limite){
 
 		$retorno=[];
-
+		$offset = ($pagina - 1) * $limite; 
 		$conexao = ligar();
 
-		$string = "SELECT * FROM departamento";
+		$string = "SELECT * FROM departamento LIMIT :limite OFFSET :offset";
 
 		$insert=$conexao->prepare($string);
+		$insert->bindValue(":offset",$offset,PDO::PARAM_INT);
+        $insert->bindValue(':limite', $limite, PDO::PARAM_INT);
 		$insert->execute();
+
+		$totalSql = "SELECT COUNT(*) as total from departamento";
+	 
+		 $totalStmt = $conexao->prepare($totalSql);
+		 $totalStmt->execute();
+		 $totalRegistros = $totalStmt->fetch(PDO::FETCH_OBJ)->total;
+ 
+	 // Calcula o total de páginas
+		$totalPaginas = ceil($totalRegistros / $limite);
 
 		if($insert->rowCount()<=0){
 
@@ -63,7 +74,13 @@ class DEPARTAMENTO {
 	            ];
 			}
 
-			return $retorno;
+			return [
+				'data' => $retorno,
+				'pagina_atual' => $pagina,
+				'total_paginas' => $totalPaginas,
+				'total_registros' => $totalRegistros,
+				'mensagem'=>'operação realizada com sucesso!'
+			];
 		}
 }
 

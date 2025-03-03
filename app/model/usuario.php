@@ -64,16 +64,30 @@ public static function editPassword($senha,$id){
 }
 
 //função para listar as especialidades de um medico
-public static function listar_todas(){
+public static function listar_todas($pagina,$limite){
 
 		$retorno=[];
 
+		$offset = ($pagina - 1) * $limite; 
+
 		$conexao = ligar();
 
-		$string = "SELECT * FROM usuario";
+		$string = "SELECT * FROM usuario LIMIT :limite OFFSET :offset";
 
 		$insert=$conexao->prepare($string);
+		$insert->bindValue(":offset",$offset,PDO::PARAM_INT);
+        $insert->bindValue(':limite', $limite, PDO::PARAM_INT);
 		$insert->execute();
+
+		     // Conta o total de registros para cálculo de páginas
+			 $totalSql = "SELECT COUNT(*) as total from usuario";
+	 
+			 $totalStmt = $conexao->prepare($totalSql);
+			 $totalStmt->execute();
+			 $totalRegistros = $totalStmt->fetch(PDO::FETCH_OBJ)->total;
+	 
+		 // Calcula o total de páginas
+		    $totalPaginas = ceil($totalRegistros / $limite);
 
 		if($insert->rowCount()<=0){
 
@@ -94,7 +108,13 @@ public static function listar_todas(){
             ];
 			}
 
-			return $retorno;
+			return [
+				'data' => $retorno,
+				'pagina_atual' => $pagina,
+				'total_paginas' => $totalPaginas,
+				'total_registros' => $totalRegistros,
+				'mensagem'=>'operação realizada com sucesso!'
+			];
 		}
 }
 

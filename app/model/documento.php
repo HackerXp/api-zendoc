@@ -80,19 +80,35 @@ class DOCUMENTO {
 
 
 //função para listar as especialidades de um medico
-public static function listar_todos(){
+public static function listar_todos($pagina,$limite){
 
 		$retorno=[];
-
+        $offset = ($pagina - 1) * $limite; 
 		$conexao = ligar();
 
 		$string = "SELECT * FROM documento d 
         inner join categoria c on(categoria_idcategoria=idcategoria) 
         inner join departamento de on(departamento_iddepartamento=iddepartamento) 
-        inner join usuario on(usuario_idusuario=idusuario)";
+        inner join usuario on(usuario_idusuario=idusuario)  LIMIT :limite OFFSET :offset";
 
 		$insert=$conexao->prepare($string);
+        $insert->bindValue(":offset",$offset,PDO::PARAM_INT);
+        $insert->bindValue(':limite', $limite, PDO::PARAM_INT);
 		$insert->execute();
+
+
+        // Conta o total de registros para cálculo de páginas
+		 $totalSql = "SELECT count(*) as total FROM documento d 
+        inner join categoria c on(categoria_idcategoria=idcategoria) 
+        inner join departamento de on(departamento_iddepartamento=iddepartamento) 
+        inner join usuario on(usuario_idusuario=idusuario)";
+	 
+		 $totalStmt = $conexao->prepare($totalSql);
+		 $totalStmt->execute();
+		 $totalRegistros = $totalStmt->fetch(PDO::FETCH_OBJ)->total;
+ 
+	 // Calcula o total de páginas
+		$totalPaginas = ceil($totalRegistros / $limite);
 
 		if($insert->rowCount()<=0){
 
@@ -124,7 +140,13 @@ public static function listar_todos(){
             ];
 			}
 
-			return $retorno;
+			return [
+				'data' => $retorno,
+				'pagina_atual' => $pagina,
+				'total_paginas' => $totalPaginas,
+				'total_registros' => $totalRegistros,
+				'mensagem'=>'operação realizada com sucesso!'
+			];
 		}
 }
 
