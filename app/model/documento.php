@@ -199,20 +199,37 @@ public static function listar_id($id){
 }
 
 
-public static function listar_id_categoria($id){
+public static function listar_id_categoria($id,$pagina,$limite){
 
 		$retorno=[];
-
+        $offset = ($pagina - 1) * $limite; 
 		$conexao = ligar();
 
 		$string = "SELECT * FROM documento d 
         INNER JOIN categoria c ON (categoria_idcategoria = idcategoria) 
         INNER JOIN departamento de ON (departamento_iddepartamento = iddepartamento) 
-        INNER JOIN usuario u ON (usuario_idusuario = idusuario) where c.idcategoria=:id";
+        INNER JOIN usuario u ON (usuario_idusuario = idusuario) where c.idcategoria=:id LIMIT :limite OFFSET :offset";
 
 		$insert=$conexao->prepare($string);
 		$insert->bindParam(":id",$id,PDO::PARAM_INT);
+        $insert->bindValue(":offset",$offset,PDO::PARAM_INT);
+        $insert->bindValue(':limite', $limite, PDO::PARAM_INT);
 		$insert->execute();
+
+
+        // Conta o total de registros para cálculo de páginas
+		 $totalSql = "SELECT count(*) as total FROM documento d 
+        INNER JOIN categoria c ON (categoria_idcategoria = idcategoria) 
+        INNER JOIN departamento de ON (departamento_iddepartamento = iddepartamento) 
+        INNER JOIN usuario u ON (usuario_idusuario = idusuario) where c.idcategoria=:id";
+      
+          $totalStmt = $conexao->prepare($totalSql);
+          $totalStmt->bindValue(":id",$id);
+          $totalStmt->execute();
+          $totalRegistros = $totalStmt->fetch(PDO::FETCH_OBJ)->total;
+  
+      // Calcula o total de páginas
+         $totalPaginas = ceil($totalRegistros / $limite);
 
 		if($insert->rowCount()<=0){
 
@@ -242,7 +259,13 @@ public static function listar_id_categoria($id){
              ];
 			}
 
-			return $retorno;
+			return [
+				'data' => $retorno,
+				'pagina_atual' => $pagina,
+				'total_paginas' => $totalPaginas,
+				'total_registros' => $totalRegistros,
+				'mensagem'=>'operação realizada com sucesso!'
+			];
 		}
 }
 

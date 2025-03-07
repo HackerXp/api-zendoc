@@ -441,8 +441,9 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                     http_response_code(400);
                     exit;
                 }
-                
-                echo $documentocontroller->$handler($id);
+                $pagina=isset($_GET['pagina']) ? filter_input(INPUT_GET,'pagina',FILTER_SANITIZE_NUMBER_INT):1;
+                $limite= isset($_GET['limite'])? filter_input(INPUT_GET,'limite',FILTER_SANITIZE_NUMBER_INT):20;
+                echo $documentocontroller->$handler($id,$pagina,$limite);
                 break;
 
 

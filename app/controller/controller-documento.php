@@ -67,9 +67,9 @@ public function listarDocumentosId($id){
         return json_encode($dados);
     }
 
-public function listarDocumentosIdCategoria($id){
+public function listarDocumentosIdCategoria($id,$pagina,$limite){
     
-        $retorno = DOCUMENTO::listar_id_categoria($id);
+        $retorno = DOCUMENTO::listar_id_categoria($id,$pagina,$limite);
 
         if(empty($retorno)){
 
@@ -77,12 +77,8 @@ public function listarDocumentosIdCategoria($id){
         	return json_encode($retorno);
         }
 
-        $dados=[
-        'data'=>$retorno,
-        'mensagem'=>'operação realizada com sucesso!',
-        'codigo'=>'200'];
         
-        return json_encode($dados);
+        return json_encode($retorno);
     }
 
 public function buscaAvancada(){
