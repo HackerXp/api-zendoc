@@ -3,7 +3,7 @@
 function ligar(){
 
 	$ususario="root";
-	$senha="root";
+	$senha="";
 	$host="mysql:host=localhost;dbname=documental";
 
 	try{

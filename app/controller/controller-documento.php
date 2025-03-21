@@ -83,7 +83,7 @@ public function listarDocumentosIdCategoria($id,$pagina,$limite){
 
 public function buscaAvancada(){
     
-       $search=filter_input(INPUT_POST,'busca',FILTER_SANITIZE_SPECIAL_CHARS);
+       $search=filter_input(INPUT_GET,'busca',FILTER_SANITIZE_SPECIAL_CHARS);
 
         $retorno = DOCUMENTO::buscaAvancada($search);
 
