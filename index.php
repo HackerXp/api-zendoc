@@ -48,6 +48,7 @@ $rotasUsuario = [
     //usuário
     'listar-todos-usuario' => ['method' => 'GET', 'handler' => 'listarTodos'],
     'listar-usuario-por-id' => ['method' => 'GET', 'handler' => 'listarPorId'],
+    'listar-usuario-por-dept' => ['method' => 'GET', 'handler' => 'listar_idDepartamento'],
     'cadastrar-usuario' => ['method' => 'POST', 'handler' => 'cadastrar'],
     'editar-usuario' => ['method' => 'PUT', 'handler' => 'editar'],
     'editar-senha' => ['method' => 'PUT', 'handler' => 'editar_senha'],
@@ -181,6 +182,22 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
                 exit;
             }
               echo $usuariocontroller->$handler($id);
+            break;
+
+           case'listar_idDepartamento':
+            $id = filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT);
+            $dept = filter_input(INPUT_GET, 'dept', FILTER_SANITIZE_NUMBER_INT);
+            if (!$id && !$dept) {
+
+                echo json_encode([
+                    'data' => null,
+                    'mensagem' => 'ID não fornecido ou inválido. listar usuario',
+                    'codigo' => '400',
+                ]);
+                http_response_code(400);
+                exit;
+            }
+              echo $usuariocontroller->$handler($id,$dept);
             break;
 
             

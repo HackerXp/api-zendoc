@@ -42,6 +42,25 @@ class UsuarioController
     }
 
 
+    public function listar_idDepartamento($id,$dept) {
+    
+        $retorno = USUARIO::listar_idDepartamento($id,$dept);
+
+        if(empty($retorno)){
+
+        	$retorno=['data'=>null,'mensagem'=>'nenhuma informãção encontrada','codigo'=>'600'];
+        	return json_encode($retorno);
+        }
+
+        $dados=[
+        'data'=>$retorno,
+        'mensagem'=>'operação realizada com sucesso!',
+        'codigo'=>'200'];
+        
+        return json_encode($dados);
+    }
+
+
 
 
      public function cadastrar(){

@@ -103,8 +103,8 @@ public static function listar_todas($pagina,$limite){
                 'id' => $dados->idusuario,
                 'nome' => $dados->nome,
                 'usuario' => $dados->usuario,
-                'email' => $dados->email
-                
+                'iddepartamento' => $dados->iddepartamento,
+                'email' => $dados->email    
             ];
 			}
 
@@ -146,6 +146,44 @@ public static function listar_id($id){
                 'id' => $dados->idusuario,
                 'nome' => $dados->nome,
                 'usuario' => $dados->usuario,
+				'iddepartamento' => $dados->iddepartamento,
+                'email' => $dados->email
+            ];
+			}
+
+			return $retorno;
+		}
+}
+
+
+public static function listar_idDepartamento($id,$dept){
+
+		$retorno=[];
+
+		$conexao = ligar();
+
+		$string = "SELECT * FROM usuario where  iddepartamento = :dept and idusuario <> :id";
+
+		$insert=$conexao->prepare($string);
+		$insert->bindParam(":id",$id,PDO::PARAM_INT);
+		$insert->bindParam(":dept",$dept,PDO::PARAM_INT);
+		$insert->execute();
+
+		if($insert->rowCount()<=0){
+
+			return $retorno; 
+
+		}else{
+
+
+			while($dados=$insert->fetch(PDO::FETCH_OBJ)){
+			 // Adiciona os dados ao array de retorno
+            $retorno[] = [
+
+                'id' => $dados->idusuario,
+                'nome' => $dados->nome,
+                'usuario' => $dados->usuario,
+				'iddepartamento' => $dados->iddepartamento,
                 'email' => $dados->email
             ];
 			}
@@ -183,6 +221,7 @@ public static function buscar($email,$usuario){
                 'id' => $dados->idusuario,
                 'nome' => $dados->nome,
                 'usuario' => $dados->usuario,
+				'iddepartamento' => $dados->iddepartamento,
                 'email' => $dados->email
             ];
 			}

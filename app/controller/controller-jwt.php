@@ -70,6 +70,7 @@ function login($usuario, $senha) {
                     "email" => $user['email'],
                     "permissoes" => empty($permissoes) ? null :$permissoes,
                     "nome" => $user['nome'],
+                    "iddepartamento" => $user['iddepartamento'],
                     "idusuario" => $user['idusuario']
                 ];
                 $jwt = JWT::encode($payload, $key, 'HS256');
