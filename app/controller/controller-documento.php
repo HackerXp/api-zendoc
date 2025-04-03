@@ -7,14 +7,14 @@ class DocumentoController
 {
 
 
-public function listarTodosDocumentos($pagina,$limite){
+public function listarTodosDocumentos($pagina,$limite, $usuario_id, $departamento_id){
     
-        $retorno = DOCUMENTO::listar_todos($pagina,$limite);
+        $retorno = DOCUMENTO::listar_todos($pagina,$limite, $usuario_id, $departamento_id);
 
         if(empty($retorno)){
 
-        	$retorno=['data'=>null,'mensagem'=>'nenhuma informãção encontrada','codigo'=>'600'];
-            http_response_code(600);
+        	$retorno=['data'=>[],'mensagem'=>'nenhuma informãção encontrada','codigo'=>'200'];
+            http_response_code(200);
         	return json_encode($retorno);
         }else {
             http_response_code(200);
@@ -32,8 +32,8 @@ public function listarTodosDocumentosPorCategoria(){
 
         if(empty($retorno)){
 
-        	$retorno=['data'=>null,'mensagem'=>'Nenhuma informação encontrada','codigo'=>'600'];
-            http_response_code(600);
+        	$retorno=['data'=>null,'mensagem'=>'Nenhuma informação encontrada','codigo'=>'200'];
+            http_response_code(200);
         	return json_encode($retorno);
         }else {
             http_response_code(200);
@@ -55,7 +55,7 @@ public function listarDocumentosId($id){
 
         if(empty($retorno)){
 
-        	$retorno=['data'=>null,'mensagem'=>'nenhuma informãção encontrada','codigo'=>'600'];
+        	$retorno=['data'=>null,'mensagem'=>'nenhuma informãção encontrada','codigo'=>'200'];
         	return json_encode($retorno);
         }
 
@@ -73,7 +73,7 @@ public function listarDocumentosIdCategoria($id,$pagina,$limite){
 
         if(empty($retorno)){
 
-        	$retorno=['data'=>null,'mensagem'=>'nenhuma informãção encontrada','codigo'=>'600'];
+        	$retorno=['data'=>[],'mensagem'=>'nenhuma informãção encontrada','codigo'=>'600'];
         	return json_encode($retorno);
         }
 
@@ -89,7 +89,7 @@ public function buscaAvancada(){
 
         if(empty($retorno)){
 
-        	$retorno=['data'=>null,'mensagem'=>'nenhuma informãção encontrada','codigo'=>'600'];
+        	$retorno=['data'=>[],'mensagem'=>'nenhuma informãção encontrada','codigo'=>'600'];
         	return json_encode($retorno);
         }
 
@@ -327,7 +327,7 @@ public function editarDocumento(){
                     'codigo' => '200'
                 ];
     
-                http_response_code(200); // Bad Request
+                http_response_code(200); // Success
             }else{
 
                 $retorno = [
@@ -335,10 +335,55 @@ public function editarDocumento(){
                     'mensagem' => 'erro ao editar documento, tente novamente',
                     'codigo' => '500'
                 ];
-                http_response_code(200); // Bad Request
+                http_response_code(500); // Internal server error
             }
 
         }
+        return json_encode($retorno);
+}
+
+public function shareWith(){
+    // Capturar dados enviados pelo método PUT
+    $boundary = substr($_SERVER['CONTENT_TYPE'], strpos($_SERVER['CONTENT_TYPE'], "boundary=") + 9);
+    $rawData = file_get_contents("php://input");
+    $parts = explode("--" . $boundary, $rawData);
+    $putData = [];
+
+    foreach ($parts as $part) {
+        if (empty($part) || $part == "--\r\n") {
+            continue;
+        }
+
+        // Separar o cabeçalho e o conteúdo
+        list($headers, $content) = explode("\r\n\r\n", $part, 2);
+        preg_match('/name="([^"]+)"/', $headers, $matches);
+
+        if (!empty($matches[1])) {
+            $fieldName = $matches[1];
+            $putData[$fieldName] = trim($content);
+        }
+    }
+
+        $idDoc = filter_var($putData['iddoc'] ?? null, FILTER_SANITIZE_SPECIAL_CHARS);
+        $visibility=filter_var($putData['visibility'] ?? null, FILTER_SANITIZE_SPECIAL_CHARS);
+        $receptor=filter_var($putData['receptor'] ?? null, FILTER_SANITIZE_SPECIAL_CHARS);
+        $retorno = DOCUMENTO:: shareWith($idDoc,$visibility,$receptor);
+            if($retorno){
+                $retorno = [
+                    'data' => null,
+                    'mensagem' => 'Documento compartilhado com sucesso!.',
+                    'codigo' => '200'
+                ];
+    
+                http_response_code(200); // Success
+            }else{
+                $retorno = [
+                    'data' => null,
+                    'mensagem' => 'Erro ao compartilhar o documento, tente novamente',
+                    'codigo' => '500'
+                ];
+                http_response_code(500); // Internal server error
+            }
         return json_encode($retorno);
 }
 

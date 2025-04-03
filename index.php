@@ -84,6 +84,7 @@ $rotasUsuario = [
     'listar-documentos-por-id' => ['method' => 'GET', 'handler' => 'listarDocumentosId'],
     'filtro-avancado' => ['method' => 'GET', 'handler' => 'buscaAvancada'],
     'editar-documento' => ['method' => 'PUT', 'handler' => 'editarDocumento'],
+    'shareWith' => ['method' => 'PUT', 'handler' => 'shareWith'],
     'eliminar-documento' => ['method' => 'DELETE', 'handler' => 'eliminarDocumento'],
     'salvar-documento' => ['method' => 'POST', 'handler' => 'salvarDocumento'],
     'listar-todos-documentos-por-categoria' => ['method' => 'GET', 'handler' => 'listarTodosDocumentosPorCategoria'],
@@ -425,7 +426,9 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
             case 'listarTodosDocumentos':
                 $pagina=isset($_GET['pagina']) ? filter_input(INPUT_GET,'pagina',FILTER_SANITIZE_NUMBER_INT):1;
                 $limite= isset($_GET['limite'])? filter_input(INPUT_GET,'limite',FILTER_SANITIZE_NUMBER_INT):20;
-            echo $documentocontroller->$handler($pagina,$limite);
+                $usuario_id= filter_input(INPUT_GET,'usuario_id',FILTER_SANITIZE_NUMBER_INT);
+                $departamento_id=filter_input(INPUT_GET,'departamento_id',FILTER_SANITIZE_NUMBER_INT);
+            echo $documentocontroller->$handler($pagina,$limite, $usuario_id, $departamento_id);
             break;
 
             case 'listarDocumentosId':
@@ -487,6 +490,11 @@ if (isset($rota) && array_key_exists($rota, $rotasUsuario)) {
             break;
 
             case 'editarDocumento':
+            parse_str(file_get_contents("php://input"), $putData);
+            echo $documentocontroller->$handler($putData);
+            break;
+
+            case 'shareWith':
             parse_str(file_get_contents("php://input"), $putData);
             echo $documentocontroller->$handler($putData);
             break;

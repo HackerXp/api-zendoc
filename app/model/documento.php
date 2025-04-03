@@ -10,9 +10,9 @@ class DOCUMENTO {
 
 		$conexao = ligar();
 
-		$string="INSERT INTO documento(titulo,tipo,descricao,categoria_idcategoria,departamento_iddepartamento,tags,usuario_idusuario)
-         VALUES(:t,:ti,:d,:c,:de,:ta,:us)";
-
+		$string="INSERT INTO documento(titulo,tipo,descricao,categoria_idcategoria,departamento_iddepartamento,tags,usuario_idusuario,visibilidade)
+         VALUES(:t,:ti,:d,:c,:de,:ta,:us, :vis)";
+        $visibility="private";
 		$insert=$conexao->prepare($string);
         $insert->bindParam(":t",$titulo);
         $insert->bindParam(":ti",$tipo);
@@ -21,6 +21,8 @@ class DOCUMENTO {
         $insert->bindParam(":de",$departamento);
         $insert->bindParam(":ta",$tags);
         $insert->bindParam(":us",$usuario);
+        $insert->bindParam(":vis",$visibility);
+        
 		
 		return $insert->execute() ? $conexao->lastInsertId() : 0;
 	}
@@ -80,44 +82,59 @@ class DOCUMENTO {
 
 
 //função para listar as especialidades de um medico
-public static function listar_todos($pagina,$limite){
+public static function listar_todos($pagina,$limite, $usuario_id, $departamento_id){
 
 		$retorno=[];
         $offset = ($pagina - 1) * $limite; 
 		$conexao = ligar();
 
-		$string = "SELECT * FROM documento d 
+		$query = "SELECT * FROM documento d 
         inner join categoria c on(categoria_idcategoria=idcategoria) 
         inner join departamento de on(departamento_iddepartamento=iddepartamento) 
-        inner join usuario on(usuario_idusuario=idusuario)  LIMIT :limite OFFSET :offset";
+        inner join usuario on(usuario_idusuario=idusuario) 
+        WHERE d.visibilidade = 'public' 
+            OR (d.visibilidade = 'department' AND d.departamento_iddepartamento = :dep) 
+            OR (d.visibilidade = 'private' AND (CONCAT(',',d.visualizadores,',') LIKE  :usu OR d.usuario_idusuario = :user)) 
+        LIMIT :limite OFFSET :offset";
 
-		$insert=$conexao->prepare($string);
-        $insert->bindValue(":offset",$offset,PDO::PARAM_INT);
-        $insert->bindValue(':limite', $limite, PDO::PARAM_INT);
-		$insert->execute();
+		$query=$conexao->prepare($query);
+        $query->bindValue(":offset",$offset,PDO::PARAM_INT);
+        $query->bindValue(':limite', $limite, PDO::PARAM_INT);
+        $query->bindValue(":dep", $departamento_id, PDO::PARAM_INT);
+        $query->bindValue(":user", $usuario_id, PDO::PARAM_INT);
+        
+        $usrid='%,'.$usuario_id.',%';
+        $query->bindValue(":usu", $usrid, PDO::PARAM_STR);
+		$query->execute();
 
 
         // Conta o total de registros para cálculo de páginas
 		 $totalSql = "SELECT count(*) as total FROM documento d 
         inner join categoria c on(categoria_idcategoria=idcategoria) 
         inner join departamento de on(departamento_iddepartamento=iddepartamento) 
-        inner join usuario on(usuario_idusuario=idusuario)";
+        inner join usuario on(usuario_idusuario=idusuario)  WHERE d.visibilidade = 'public' 
+            OR (d.visibilidade = 'department' AND d.departamento_iddepartamento = :dept) 
+            OR (d.visibilidade = 'private' AND (CONCAT(',',d.visualizadores,',') LIKE  :usu OR d.usuario_idusuario = :user))";
 	 
 		 $totalStmt = $conexao->prepare($totalSql);
+         $totalStmt->bindValue(":dept", $departamento_id, PDO::PARAM_INT);
+         $totalStmt->bindValue(":user", $usuario_id, PDO::PARAM_INT);
+             $usrid='%,'.$usuario_id.',%';
+        $totalStmt->bindValue(":usu", $usrid, PDO::PARAM_STR);
 		 $totalStmt->execute();
 		 $totalRegistros = $totalStmt->fetch(PDO::FETCH_OBJ)->total;
  
 	 // Calcula o total de páginas
 		$totalPaginas = ceil($totalRegistros / $limite);
 
-		if($insert->rowCount()<=0){
+		if($query->rowCount()<=0){
 
 			return $retorno; 
 
 		}else{
 
 
-			while($dados=$insert->fetch(PDO::FETCH_OBJ)){
+			while($dados=$query->fetch(PDO::FETCH_OBJ)){
 			
            $files=FILES::listar_todas($dados->iddocumento);
 
@@ -135,6 +152,7 @@ public static function listar_todos($pagina,$limite){
                 'usuario' => $dados->nome,
                 'idusuario' => $dados->idusuario,
                 'data_criacao' => $dados->data_criado,
+                'visibilidade' => $dados->visibilidade,
                 'files'=> empty($files) ? 'nenhum arquivo associado' : $files
                 
             ];
@@ -150,6 +168,22 @@ public static function listar_todos($pagina,$limite){
 		}
 }
 
+
+public static function shareWith($idDoc,$visibility,$receptor){
+    $conexao = ligar();
+    $v='';
+    if($visibility=='private'||$visibility=='public')$v=',visualizadores=:viewrs';
+    
+	$sql="UPDATE  documento SET  visibilidade=:vis ".$v." where iddocumento=:id";
+	$update=$conexao->prepare($sql);
+    
+    $update->bindParam(":vis",$visibility);
+	if($visibility=='private'||$visibility=='public') $update->bindParam(":viewrs",$receptor);
+	$update->bindParam(":id",$idDoc);
+  
+
+	return $update->execute() ? true : false;
+}
 
 public static function listar_id($id){
 
@@ -190,6 +224,7 @@ public static function listar_id($id){
                  'usuario' => $dados->nome,
                  'idusuario' => $dados->idusuario,
                  'data_criacao' => $dados->data_criado,
+                 'visibilidade' => $dados->visibilidade,
                  'files' => empty($files) ? 'nenhum arquivo associado' : $files
              ];
 			}
@@ -255,6 +290,7 @@ public static function listar_id_categoria($id,$pagina,$limite){
                  'usuario' => $dados->nome,
                  'idusuario' => $dados->idusuario,
                  'data_criacao' => $dados->data_criado,
+                 'visibilidade' => $dados->visibilidade,
                  'files' => empty($files) ? 'nenhum arquivo associado' : $files
              ];
 			}
@@ -360,6 +396,7 @@ public static function buscaAvancada($searchTerm) {
                 'usuario' => $dados->nome,
                 'idusuario' => $dados->idusuario,
                 'data_criacao' => $dados->data_criado,
+                'visibilidade' => $dados->visibilidade,
                 'files' => empty($files) ? 'nenhum arquivo associado' : $files
             ];
         }
